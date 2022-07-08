@@ -1,0 +1,19 @@
+#which interface will be used for openvswitch
+interface_name:
+  - ens192
+
+#name of ovs bridge
+bridge_name:
+  - openvswitch
+
+ip_address:
+  - 10.7.160.3
+
+netmask:
+  - 255.255.255.224
+
+gateway:
+  - 10.7.160.1
+
+dns:
+  - 8.8.8.8

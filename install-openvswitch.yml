@@ -1,0 +1,31 @@
+---
+- name: installing & configuring OVS
+  hosts: all
+  become: yes
+  vars_files:
+    - ./vars/ovs-vars.yml
+
+  tasks:
+    - name: install ovs & add bridge
+      shell: |
+        yum install https://rdoproject.org/repos/rdo-release.rpm -y
+        yum install openvswitch -y
+        systemctl enable openvswitch.service --now
+        systemctl disable NetworkManager --now
+        systemctl enable network.service --now
+        ovs-vsctl add-br {{ bridge_name.0 }}
+
+    - name: generate config file for interface
+      template:
+        src: ./files/ifcfg-ens.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-{{ interface_name.0 }}
+
+    - name: generate config file for bridge
+      template:
+        src: ./files/ifcfg-ovsbridge.j2
+        dest: /etc/sysconfig/network-scripts/ifcfg-{{ bridge_name.0 }}
+
+    - name: add interface & restart network
+      shell: ovs-vsctl add-port {{ bridge_name.0 }} {{ interface_name.0 }} && systemctl restart network
+      async: 45
+      poll: 5
